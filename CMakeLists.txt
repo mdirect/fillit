@@ -91,5 +91,4 @@ add_executable(Fillit
         fillit.h
         main.c
         is_valid.c
-        print.c
-        )
+        print.c)

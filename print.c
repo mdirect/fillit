@@ -6,54 +6,43 @@
 /*   By: mdirect <mdirect@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/31 13:10:30 by mdirect           #+#    #+#             */
-/*   Updated: 2019/10/31 14:27:59 by mdirect          ###   ########.fr       */
+/*   Updated: 2019/11/11 18:08:27 by mdirect          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include "fillit.h"
 
-void		ft_strrev(char *s)
-{
-	size_t	i;
-	size_t	n;
-	char	c;
+/* We shorted code, but now it works correctly only with maps 5x5
+ * i don't know, how to change this*/
 
-	if (!s)
-		return ;
-	n = ft_strlen(s) - 1;
-	i = 0;
-	while (i < n)
+void	ft_print_bit(uint64_t n, int y)
+{
+	int i;
+	int tmp;
+
+	i = y * (y + 1);
+	while ((n & (1 << i)) == 0)
+		i--;
+	tmp = i;
+	while (i > 0) {
+		if ((n & (1 << i)) == 0)
+			write(1, ".", 1);
+		else if ((n & (1 << i)) != 0)
+		{
+			ft_putchar('#');
+		}
+		if ((i - 1) % y == 0)
+			write(1, "\n", 1);
+		i--;
+	}
+	i = tmp;
+	while (i < (y * y + y))
 	{
-		c = s[i];
-		s[i] = s[n];
-		s[n] = c;
+		write(1, ".", 1);
 		i++;
-		n--;
+//		if (i % y == 0)
+//			write(1, "\n", 1);
 	}
-}
-
-char		*ft_print_bit(int n)
-{
-	int		nb;
-	int		len;
-	char	*str;
-	int		i;
-
-	nb = n;
-	len = 1;
-	while (nb / 2)
-	{
-		len++;
-		nb = nb / 2;
-	}
-	str = ft_strnew(len);
-	i = 0;
-	while (i < len)
-	{
-		str[i++] = (n % 2) ? '1' : '0';
-		n = n / 2;
-	}
-	ft_strrev(str);
-	return (str);
+	write(1, "\n", 1);
 }
