@@ -6,7 +6,7 @@
 /*   By: kroselin <kroselin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/14 11:37:15 by kroselin          #+#    #+#             */
-/*   Updated: 2019/11/22 14:42:27 by mdirect          ###   ########.fr       */
+/*   Updated: 2019/11/22 15:27:15 by mdirect          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,9 @@ int			count_lines(t_uint128_t *tetra)
 		return (2);
 	if (i < 3 && line == 1)
 		return (4);
-	else if (i > 1)
+	if (i == 1)
+		return (3);
+	if (i > 1)
 		return (ft_sqrt(i * 4));
 	return (0);
 }
