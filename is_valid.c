@@ -1,45 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   is_valid.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kroselin <kroselin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/28 14:22:38 by kroselin          #+#    #+#             */
-/*   Updated: 2019/11/07 13:37:07 by kroselin         ###   ########.fr       */
+/*   Updated: 2019/11/22 14:42:27 by mdirect          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "libft/libft.h"
+
 #include "fillit.h"
 
-int check_tetramino(uint64_t src)
-{
-	uint64_t tetramins[19] = {58368, 35968, 19968, 19520,
-							  52224,
-							  34952, 61440,
-							  51328, 57856, 50240, 36352, 17600, 35008, 11776, 59392,
-							  27648, 35904, 50688, 19584};
-	int	i;
+/*
+**"work with tetri" - func, which makes a char to int.
+**"move tetro" moves tetra in top left corner,
+**"check_tetramino" has a list of right tetras and check new number on it.
+*/
 
-	i = -1;
-	while (++i < 19)
-		if(tetramins[i] == src)
-			return (1);
-	return (0);
-}
-
-uint64_t move_tetro(uint64_t tmp)
+t_uint128_t	work_with_tetri(char *content)
 {
-	while ((LEFT & tmp) == 0)
-		tmp <<= 1;
-	while ((TOP & tmp) == 0)
-		tmp <<= 4;
-	return (tmp);
-}
-
-uint64_t work_with_tetri(char *content)
-{
-	uint64_t	tmp;
+	t_uint128_t	tmp;
 	int			j;
 
 	j = 15;
@@ -53,60 +34,100 @@ uint64_t work_with_tetri(char *content)
 		j--;
 		content++;
 	}
-	tmp = move_tetro(tmp);
+	tmp = move_tetro(tmp, 4);
 	if (!(check_tetramino(tmp)))
 		return (0);
 	return (tmp);
 }
 
-int is_it_square(char **arr)
+int			correct_chars(char *buf)
 {
 	int i;
-	int j;
-	int x;
-	int y;
+	int count;
 
-	x = 0;
-	y = 0;
 	i = 0;
-	j = 0;
-	while (arr[i])
+	count = 0;
+	while (i < 19)
 	{
-		while (arr[i][j] != '\0')
-		{
-			if (arr[i][j] == '#')
-				x++;
-			if (arr[i][j] == '.')
-				y++;
-			j++;
-		}
-		j = 0;
+		if (buf && buf[i] != '\n' && buf[i] != '.' && buf[i] != '#')
+			return (0);
+		if (buf[i] == '\n' && !(((i + 1) % 5) == 0))
+			return (0);
+		if (buf[i] == '#')
+			count++;
 		i++;
 	}
-	if (i != 4 || (x != 4 || y != 12))
-		return (0);
+	return (count);
+}
+
+int			river_check(char *buf)
+{
+	int i;
+	int count;
+
+	i = 0;
+	count = 0;
+	while (i < 19)
+	{
+		if (buf[i] == '#')
+		{
+			if (i + 1 <= 18 && buf[i + 1] == '#')
+				count++;
+			if (i - 1 >= 0 && buf[i - 1] == '#')
+				count++;
+			if (i + 5 <= 18 && buf[i + 5] == '#')
+				count++;
+			if (i - 5 >= 0 && buf[i - 5] == '#')
+				count++;
+		}
+		i++;
+	}
+	return (count);
+}
+
+/*
+** is valid checks, that we have right sq and tetramins,
+** then it put them in mas of tetras (*t)
+*/
+
+int			is_valid(char *buf, int size, t_uint128_t *t)
+{
+	int		i;
+
+	i = 0;
+	while (i <= size)
+	{
+		if (correct_chars(buf + i) != 4)
+			return (0);
+		if (river_check(buf + i) != 6 && river_check(buf + i) != 8)
+			return (0);
+		*t = work_with_tetri(buf + i);
+		t++;
+		i += 21;
+	}
 	return (1);
 }
 
-int	is_valid(int fd, uint64_t **t)
-{
-	char	buf[BUFF_SIZE + 1];
-	char	**arr;
-	int		ret;
-	int 	i;
+/*
+** 26 tetas * 21 symbs = 546, but we begin from 0, so 545
+*/
 
-	i = 0;
-	while ((ret = read(fd, buf, BUFF_SIZE)) > 0)
-	{
-		buf[ret] = '\0';
-		if (!(arr = ft_strsplit(buf, '\n')))
-		{
-			free(arr);
-			return (0);
-		}
-		if (!(is_it_square(arr)) || !((*t)[i] = work_with_tetri(buf)))
-			return (0);
-		i++;
-	}
-	return (1);
+int			parser(char *filename, t_uint128_t *t)
+{
+	char	buff[545];
+	int		ret;
+	int		fd;
+
+	if ((fd = open(filename, O_RDONLY)) < 0)
+		return (write(1, "No file with such name.\n", 24));
+	ret = read(fd, buff, 545);
+	if (close(fd) == -1)
+		return (write(1, "error: close fd\n", 16));
+	if (ret > 544 || ret < 19)
+		return (0);
+	buff[ret] = '\0';
+	if (!(is_valid(buff, ret, t)))
+		return (0);
+	else
+		return (1);
 }
