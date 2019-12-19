@@ -6,7 +6,7 @@
 /*   By: kroselin <kroselin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/28 14:22:38 by kroselin          #+#    #+#             */
-/*   Updated: 2019/11/23 17:48:05 by mdirect          ###   ########.fr       */
+/*   Updated: 2019/12/19 16:32:15 by mdirect          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,17 @@ int		main(int ac, char **av)
 		return (write(1, "usage: ./fillit input_tetraminos\n", 33));
 	if (!(tetramins = (t_uint128_t *)malloc(sizeof(t_uint128_t) * 26)))
 		return (write(1, "error\n", 6));
-	ft_bzero(tetramins, sizeof(*tetramins) * 26 * 16);
+	ft_bzero(tetramins, sizeof(*tetramins) * 26);
 	if (!(parser(av[1], tetramins)))
+	{
+		free(tetramins);
 		return (write(1, "error\n", 6));
+	}
 	if ((y = count_lines(tetramins)) > 26)
+	{
+		free(tetramins);
 		return (write(1, "error\n", 6));
+	}
 	tetros_counter(tetramins, y);
 	free(tetramins);
 	return (0);
